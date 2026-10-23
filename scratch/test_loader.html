@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loader Test</title>
+  <style>
+    /* Fullscreen pure white loader */
+    #stabats-loader {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #ffffff;
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: all;
+      transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+        visibility 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #stabats-loader.loader-fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* Logo breathing animation: opacity increasing and decreasing */
+    .stabats-loader-logo {
+      width: 220px;
+      max-width: 65vw;
+      height: auto;
+      object-fit: contain;
+      animation: stabatsLogoBreathe 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      will-change: opacity, transform;
+    }
+
+    @keyframes stabatsLogoBreathe {
+      0% {
+        opacity: 0.2;
+        transform: scale(0.97);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scale(1.02);
+      }
+
+      100% {
+        opacity: 0.2;
+        transform: scale(0.97);
+      }
+    }
+
+    /* Web content transition from gaussian blur */
+    .stabats-content-wrapper {
+      transition: filter 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: filter, transform;
+    }
+
+    .stabats-content-wrapper.is-blurred {
+      filter: blur(24px);
+      transform: scale(0.985);
+      opacity: 0.9;
+    }
+
+    .stabats-content-wrapper.is-revealed {
+      filter: blur(0px);
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .stabats-loader-logo {
+        animation: none;
+        opacity: 1;
+      }
+
+      .stabats-content-wrapper {
+        transition: none !important;
+        filter: none !important;
+        transform: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 font-sans min-h-screen">
+
+  <!-- PURE WHITE LOADER SCREEN WITH BREATHING STABATS LOGO -->
+  <div id="stabats-loader" aria-hidden="false">
+    <div class="relative flex flex-col items-center justify-center p-6">
+      <img src="../assets/stabats-wordmark-gradient.png" alt="Stabats" class="stabats-loader-logo drop-shadow-sm">
+    </div>
+  </div>
+
+  <!-- MAIN PAGE CONTENT WRAPPER THAT TRANSITIONS FROM GAUSSIAN BLUR -->
+  <div id="stabats-page-root" class="stabats-content-wrapper is-blurred">
+    <header
+      class="bg-white border-b border-slate-200 px-4 sm:px-8 py-3.5 sm:py-5 flex items-center justify-between transition-all duration-300">
+      <img src="../assets/stabats-wordmark-gradient.png" alt="Stabats" class="h-5 sm:h-6 transition-all duration-300">
+      <div class="flex gap-3 sm:gap-4 text-xs sm:text-sm font-semibold text-slate-600">
+        <a href="#" class="hover:text-blue-600 transition-colors">Home</a>
+        <a href="#" class="hover:text-blue-600 transition-colors">Services</a>
+        <a href="#" class="hover:text-blue-600 transition-colors">About</a>
+      </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto py-24 px-6 text-center">
+      <h1 class="text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Architecting Intelligence.<br>Engineering
+        Scale.</h1>
+      <p class="text-lg text-slate-600 mb-8 max-w-xl mx-auto">Enterprise software, distributed systems, and autonomic
+        intelligence engineered for high-scale organizations.</p>
+      <button class="bg-blue-600 text-white font-bold px-6 py-3 rounded-full shadow-lg">Get in Touch</button>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const loader = document.getElementById('stabats-loader');
+      const root = document.getElementById('stabats-page-root');
+      const minDisplayTime = 800; // ms to ensure at least one graceful logo pulse
+      const startTime = performance.now();
+
+      function dismissLoader() {
+        const elapsed = performance.now() - startTime;
+        const remaining = Math.max(0, minDisplayTime - elapsed);
+
+        setTimeout(() => {
+          if (!loader || !root) return;
+
+          // 1. Reveal web page by transitioning from Gaussian blur to clear
+          root.classList.remove('is-blurred');
+          root.classList.add('is-revealed');
+
+          // 2. Fade out white loader screen
+          loader.classList.add('loader-fade-out');
+
+          // 3. Clean up styles after transition finishes
+          setTimeout(() => {
+            loader.style.display = 'none';
+            root.style.filter = 'none';
+            root.style.transform = 'none';
+            root.style.willChange = 'auto';
+          }, 900);
+        }, remaining);
+      }
+
+      if (document.readyState === 'complete') {
+        dismissLoader();
+      } else {
+        window.addEventListener('load', dismissLoader);
+      }
+    })();
+  </script>
+</body>
+
+</html>
