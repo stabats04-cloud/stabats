@@ -1,0 +1,7 @@
+node_modules/
+.vercel/
+scratch/
+.vscode/
+.agents/
+.DS_Store
+Thumbs.db
